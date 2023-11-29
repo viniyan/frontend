@@ -1,11 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, Flex, Text } from "@chakra-ui/layout";
 import DropdownMenu from "@/components/dropdown/dropdown";
 import ScatterPlot from "@/components/pointChart/pointChart";
 import Link from "next/link";
 import Chart from "@/components/chart/Chart";
 
-const AuthorDetail = () => {
+const AuthorDetail = ({ data }) => {
+  console.log(data);
+  console.log("object");
+  // function get_hours() {
+  //   return data.data.map((value) => ({
+  //     value: moment(value.created_at).hours(),
+  //     label1: "Time: " + moment(value.created_at).format("HH:mm"),
+  //     label2: "Commit ID: " + value.id,
+  //   }));
+  // }
+  // function get_days() {
+  //   return data.data.map((value) => ({
+  //     value: moment(value.created_at).day(),
+  //     label2: "Commit count: " + data.data.length,
+  //   }));
+  // }
+
   return (
     <Box bg={"white"} border={"1px solid #F4F6FF"} borderRadius={16} p={5}>
       <Flex gap={10} justify={"space-between"} flexWrap={"wrap"}>
@@ -146,10 +162,7 @@ const AuthorDetail = () => {
               </Text>
               <Chart
                 rows={["00", "03", "06", "09", "12", "15", "18", "21", "24"]}
-                data={[2, 0, 2, 0, 2, 2, 0, 2, 2].map((value) => ({
-                  value: value,
-                  label1: value,
-                }))}
+                data={get_hours()}
               />
             </Box>
             <Box>
@@ -158,10 +171,7 @@ const AuthorDetail = () => {
               </Text>
               <Chart
                 rows={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
-                data={[2, 0, 2, 2, 0, 2, 2].map((value) => ({
-                  value: value,
-                  label1: value,
-                }))}
+                data={get_days()}
               />
 
               <Box mt={6}>
@@ -196,6 +206,20 @@ const AuthorDetail = () => {
       </Flex>
     </Box>
   );
+};
+
+export const getServerSideProps = async () => {
+  const fetched_data = await fetch(
+    "https://xtvt-0cf34a19b55e.herokuapp.com/authors/alsaihn@hotmail.com/commits",
+    {
+      method: "GET",
+    }
+  );
+
+  const data = await fetched_data.json();
+  return {
+    props: data,
+  };
 };
 
 export default AuthorDetail;
