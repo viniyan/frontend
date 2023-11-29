@@ -3,6 +3,7 @@ import { Box, Flex, Text } from "@chakra-ui/layout";
 import DropdownMenu from "@/components/dropdown/dropdown";
 import ScatterPlot from "@/components/pointChart/pointChart";
 import Link from "next/link";
+import Chart from "@/components/chart/Chart";
 
 const AuthorDetail = () => {
   return (
@@ -143,28 +144,24 @@ const AuthorDetail = () => {
               <Text fontSize={"18px"} color={"#141833"}>
                 Daily Activity
               </Text>
-              <ScatterPlot
-                xAxisTitles={[
-                  "00",
-                  "03",
-                  "06",
-                  "09",
-                  "12",
-                  "15",
-                  "18",
-                  "21",
-                  "24",
-                ]}
-                xAxisValue={[2, 0, 2, 0, 2, 2, 0, 2, 2]}
+              <Chart
+                rows={["00", "03", "06", "09", "12", "15", "18", "21", "24"]}
+                data={[2, 0, 2, 0, 2, 2, 0, 2, 2].map((value) => ({
+                  value: value,
+                  label1: value,
+                }))}
               />
             </Box>
             <Box>
               <Text fontSize={"18px"} color={"#141833"}>
                 Weekly Activity
               </Text>
-              <ScatterPlot
-                xAxisTitles={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
-                xAxisValue={[2, 0, 2, 2, 0, 2, 2]}
+              <Chart
+                rows={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
+                data={[2, 0, 2, 2, 0, 2, 2].map((value) => ({
+                  value: value,
+                  label1: value,
+                }))}
               />
 
               <Box mt={6}>
