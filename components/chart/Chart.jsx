@@ -6,17 +6,19 @@ const Chart = ({ rows, data, gap }) => {
   return (
     <div className="chart-wrapper">
       <div className="chart">
-        {rows.map((value, i, arr) => {
-          return (
-            <p
-              className="row-labels"
-              style={{ width: `calc(100% / ${arr.length})` }}
-              key={"a" + i}
-            >
-              {value}
-            </p>
-          );
-        })}
+        <div className="labels-wrapper">
+          {rows.map((value, i, arr) => {
+            return (
+              <p
+                className="row-labels"
+                style={{ width: `calc(100% / ${arr.length})` }}
+                key={"a" + i}
+              >
+                {value}
+              </p>
+            );
+          })}
+        </div>
         {data.map((value, i) => {
           return (
             <ChartPoint
