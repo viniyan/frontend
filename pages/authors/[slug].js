@@ -21,7 +21,6 @@ const AuthorDetail = ({ data }) => {
       label2: "Commit count: " + data.data.length,
     }));
   }
-  console.log(get_days(), get_hours());
 
   return !data ? (
     <>Server Error</>
@@ -220,7 +219,6 @@ export const getServerSideProps = async (ctx) => {
       `https://xtvt-0cf34a19b55e.herokuapp.com/authors/${author}/commits`
     );
 
-    console.log(fetched_data.data);
     return {
       props: { data: fetched_data.data },
     };
