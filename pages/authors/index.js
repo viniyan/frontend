@@ -9,6 +9,7 @@ import { Alert } from "@chakra-ui/react";
 import { AlertIcon } from "@chakra-ui/react";
 import { AlertTitle } from "@chakra-ui/react";
 import { AlertDescription } from "@chakra-ui/react";
+import slug from "slug";
 
 const Authors = () => {
   const [authors, setAuthors] = useState({
@@ -68,7 +69,7 @@ const Authors = () => {
       <Head>
         <title>Authors</title>
       </Head>
-      
+
       <Flex gap={10}>
         <Box w={200}>
           <DropdownMenu options={["Last week", "Last Month"]} />
@@ -84,22 +85,30 @@ const Authors = () => {
           </Flex>
         </Box>
       </Flex>
-      
+
       <Box mt={12}>
         <Box display={"flex"} flexWrap={"wrap"} gap={{ base: 2, lg: 8 }}>
-          {authors?.data?.map((item, index) => (
-            <Link key={index} href={"/authors/1"}>
-              <AuthorCard
-                HeaderBorder={100}
-                headerText={item.author.slice(0, 1)}
-                boxData={["A", "B", "C", "+1"]}
-                headerBg={item.colors.bg}
-                headerTextColor={item.colors.text}
-                boxDataBorderRadius={4}
-                authorName={item.author.slice(0, 20)}
-              />
-            </Link>
-          ))}
+          {authors?.data?.map((item, index) => {
+            return (
+              <Link
+                key={index}
+                href={
+                  "/authors/" +
+                  item.author.split("@").join("-").split(".").join("_")
+                }
+              >
+                <AuthorCard
+                  HeaderBorder={100}
+                  headerText={item.author.slice(0, 1)}
+                  boxData={["A", "B", "C", "+1"]}
+                  headerBg={item.colors.bg}
+                  headerTextColor={item.colors.text}
+                  boxDataBorderRadius={4}
+                  authorName={item.author.slice(0, 20)}
+                />
+              </Link>
+            );
+          })}
         </Box>
       </Box>
     </Box>

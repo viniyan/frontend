@@ -4,25 +4,28 @@ import DropdownMenu from "@/components/dropdown/dropdown";
 import ScatterPlot from "@/components/pointChart/pointChart";
 import Link from "next/link";
 import Chart from "@/components/chart/Chart";
+import moment from "moment/moment";
+import axios from "axios";
 
 const AuthorDetail = ({ data }) => {
-  console.log(data);
-  console.log("object");
-  // function get_hours() {
-  //   return data.data.map((value) => ({
-  //     value: moment(value.created_at).hours(),
-  //     label1: "Time: " + moment(value.created_at).format("HH:mm"),
-  //     label2: "Commit ID: " + value.id,
-  //   }));
-  // }
-  // function get_days() {
-  //   return data.data.map((value) => ({
-  //     value: moment(value.created_at).day(),
-  //     label2: "Commit count: " + data.data.length,
-  //   }));
-  // }
+  function get_hours() {
+    return data?.data?.map((value) => ({
+      value: moment(value.created_at).hours(),
+      label1: "Time: " + moment(value.created_at).format("HH:mm"),
+      label2: "Commit ID: " + value.id,
+    }));
+  }
+  function get_days() {
+    return data?.data?.map((value) => ({
+      value: moment(value.created_at).day(),
+      label2: "Commit count: " + data.data.length,
+    }));
+  }
+  console.log(get_days(), get_hours());
 
-  return (
+  return !data ? (
+    <>Server Error</>
+  ) : (
     <Box bg={"white"} border={"1px solid #F4F6FF"} borderRadius={16} p={5}>
       <Flex gap={10} justify={"space-between"} flexWrap={"wrap"}>
         <Link href={"/authors"}>
@@ -163,6 +166,7 @@ const AuthorDetail = ({ data }) => {
               <Chart
                 rows={["00", "03", "06", "09", "12", "15", "18", "21", "24"]}
                 data={get_hours()}
+                gap={3}
               />
             </Box>
             <Box>
@@ -172,6 +176,7 @@ const AuthorDetail = ({ data }) => {
               <Chart
                 rows={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
                 data={get_days()}
+                gap={1}
               />
 
               <Box mt={6}>
@@ -208,18 +213,21 @@ const AuthorDetail = ({ data }) => {
   );
 };
 
-export const getServerSideProps = async () => {
-  const fetched_data = await fetch(
-    "https://xtvt-0cf34a19b55e.herokuapp.com/authors/alsaihn@hotmail.com/commits",
-    {
-      method: "GET",
-    }
-  );
+export const getServerSideProps = async (ctx) => {
+  try {
+    const author = ctx.query.slug.split("-").join("@").split("_").join(".");
+    const fetched_data = await axios.get(
+      `https://xtvt-0cf34a19b55e.herokuapp.com/authors/${author}/commits`
+    );
 
-  const data = await fetched_data.json();
-  return {
-    props: data,
-  };
+    console.log(fetched_data.data);
+    return {
+      props: { data: fetched_data.data },
+    };
+  } catch (error) {
+    console.log(error);
+    return { props: {} };
+  }
 };
 
 export default AuthorDetail;
