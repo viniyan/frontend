@@ -94,7 +94,7 @@ const Authors = () => {
                 key={index}
                 href={
                   "/authors/" +
-                  item.author_id.split("@").join("-").split(".").join("_")
+                  item.author.split("@").join("-").split(".").join("_")
                 }
               >
                 <AuthorCard
