@@ -6,6 +6,7 @@ const Chart = ({ rows, data, gap }) => {
   return (
     <div className="chart-wrapper">
       <div className="chart">
+
         <div className="labels-wrapper">
           {rows.map((value, i, arr) => {
             return (
@@ -19,6 +20,7 @@ const Chart = ({ rows, data, gap }) => {
             );
           })}
         </div>
+
         {data.map((value, i) => {
           return (
             <ChartPoint

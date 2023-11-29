@@ -7,6 +7,7 @@ import Chart from "@/components/chart/Chart";
 import moment from "moment/moment";
 import axios from "axios";
 
+
 const AuthorDetail = ({ data }) => {
   function get_hours() {
     return data?.data?.map((value) => ({
@@ -164,8 +165,10 @@ const AuthorDetail = ({ data }) => {
               </Text>
               <Chart
                 rows={["00", "03", "06", "09", "12", "15", "18", "21", "24"]}
+
                 data={get_hours()}
                 gap={3}
+
               />
             </Box>
             <Box>
@@ -174,8 +177,10 @@ const AuthorDetail = ({ data }) => {
               </Text>
               <Chart
                 rows={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
+
                 data={get_days()}
                 gap={1}
+
               />
 
               <Box mt={6}>
