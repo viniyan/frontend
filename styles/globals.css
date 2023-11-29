@@ -18,20 +18,32 @@ body {
 
 .chart-wrapper {
   height: 80px;
-  width: 380px;
+  width: 100%;
+
   padding: 16px;
 }
 
 .chart {
   height: 100%;
   width: 100%;
-  display: flex;
+
   position: relative;
+  display: flex;
+}
+
+.chart .labels-wrapper {
+  display: flex;
+  border-top: 1px solid #afafaf4f;
+  flex: 1;
+  margin-top: auto;
 }
 
 .chart .row-labels {
   text-align: center;
-  margin-top: auto;
+  color: #afafaf;
+  margin-top: 6px;
+  font-size: 13px;
+
 }
 
 .chart .chart-pointer {

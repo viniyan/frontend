@@ -1,12 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, Flex, Text } from "@chakra-ui/layout";
 import DropdownMenu from "@/components/dropdown/dropdown";
 import ScatterPlot from "@/components/pointChart/pointChart";
 import Link from "next/link";
 import Chart from "@/components/chart/Chart";
+import moment from "moment/moment";
+import axios from "axios";
 
-const AuthorDetail = () => {
-  return (
+
+const AuthorDetail = ({ data }) => {
+  function get_hours() {
+    return data?.data?.map((value) => ({
+      value: moment(value.created_at).hours(),
+      label1: "Time: " + moment(value.created_at).format("HH:mm"),
+      label2: "Commit ID: " + value.id,
+    }));
+  }
+  function get_days() {
+    return data?.data?.map((value) => ({
+      value: moment(value.created_at).day(),
+      label2: "Commit count: " + data.data.length,
+    }));
+  }
+
+  return !data ? (
+    <>Server Error</>
+  ) : (
     <Box bg={"white"} border={"1px solid #F4F6FF"} borderRadius={16} p={5}>
       <Flex gap={10} justify={"space-between"} flexWrap={"wrap"}>
         <Link href={"/authors"}>
@@ -146,10 +165,10 @@ const AuthorDetail = () => {
               </Text>
               <Chart
                 rows={["00", "03", "06", "09", "12", "15", "18", "21", "24"]}
-                data={[2, 0, 2, 0, 2, 2, 0, 2, 2].map((value) => ({
-                  value: value,
-                  label1: value,
-                }))}
+
+                data={get_hours()}
+                gap={3}
+
               />
             </Box>
             <Box>
@@ -158,10 +177,10 @@ const AuthorDetail = () => {
               </Text>
               <Chart
                 rows={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
-                data={[2, 0, 2, 2, 0, 2, 2].map((value) => ({
-                  value: value,
-                  label1: value,
-                }))}
+
+                data={get_days()}
+                gap={1}
+
               />
 
               <Box mt={6}>
@@ -196,6 +215,22 @@ const AuthorDetail = () => {
       </Flex>
     </Box>
   );
+};
+
+export const getServerSideProps = async (ctx) => {
+  try {
+    const author = ctx.query.slug.split("-").join("@").split("_").join(".");
+    const fetched_data = await axios.get(
+      `https://xtvt-0cf34a19b55e.herokuapp.com/authors/${author}/commits`
+    );
+
+    return {
+      props: { data: fetched_data.data },
+    };
+  } catch (error) {
+    console.log(error);
+    return { props: {} };
+  }
 };
 
 export default AuthorDetail;
