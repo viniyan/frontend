@@ -1,11 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, Flex, Text } from "@chakra-ui/layout";
 import DropdownMenu from "@/components/dropdown/dropdown";
 import ScatterPlot from "@/components/pointChart/pointChart";
 import Link from "next/link";
+import Chart from "@/components/chart/Chart";
+import moment from "moment/moment";
+import axios from "axios";
+import timeToFloat from "@/utils/timeToFloat";
 
-const AuthorDetail = () => {
-  return (
+const AuthorDetail = ({ data, author, chart }) => {
+  function get_hours() {
+    return data?.data?.map((value) => ({
+      value: timeToFloat(value.created_at),
+      label1: "Time: " + moment(value.created_at).format("HH:mm"),
+      label2: "Commit ID: " + value.id,
+    }));
+  }
+
+  function get_days() {
+    const value = {};
+    chart?.data?.commit_count?.forEach((x) => {
+      value[moment(x.date).days()] = value[moment(x.date).days()]
+        ? value[moment(x.date).days()] + x.commit_count
+        : x.commit_count;
+    });
+
+    return Object.keys(value).map((keys) => ({
+      value: keys,
+      label1: "Commit count: " + value[keys],
+    }));
+  }
+
+  return !data ? (
+    <>Server Error</>
+  ) : (
     <Box bg={"white"} border={"1px solid #F4F6FF"} borderRadius={16} p={5}>
       <Flex gap={10} justify={"space-between"} flexWrap={"wrap"}>
         <Link href={"/authors"}>
@@ -143,28 +171,22 @@ const AuthorDetail = () => {
               <Text fontSize={"18px"} color={"#141833"}>
                 Daily Activity
               </Text>
-              <ScatterPlot
-                xAxisTitles={[
-                  "00",
-                  "03",
-                  "06",
-                  "09",
-                  "12",
-                  "15",
-                  "18",
-                  "21",
-                  "24",
-                ]}
-                xAxisValue={[2, 0, 2, 0, 2, 2, 0, 2, 2]}
+              <Chart
+                rows={["00", "03", "06", "09", "12", "15", "18", "21", "24"]}
+                data={get_hours()}
+                gap={3}
               />
             </Box>
             <Box>
               <Text fontSize={"18px"} color={"#141833"}>
                 Weekly Activity
               </Text>
-              <ScatterPlot
-                xAxisTitles={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
-                xAxisValue={[2, 0, 2, 2, 0, 2, 2]}
+              <Chart
+                rows={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
+                data={get_days()}
+                author={author}
+                is_commit_count
+                gap={1}
               />
 
               <Box mt={6}>
@@ -199,6 +221,31 @@ const AuthorDetail = () => {
       </Flex>
     </Box>
   );
+};
+
+export const getServerSideProps = async (ctx) => {
+  try {
+    const author = ctx.query.slug;
+
+    const fetched_data = await Promise.all([
+      axios.get(
+        `https://xtvt-0cf34a19b55e.herokuapp.com/authors/${author}/commits`
+      ),
+      axios.get(
+        `https://xtvt-0cf34a19b55e.herokuapp.com/authors/${author}/commit_count`
+      ),
+    ]);
+    return {
+      props: {
+        data: fetched_data[0].data,
+        author,
+        chart: fetched_data[1].data,
+      },
+    };
+  } catch (error) {
+    console.log(error);
+    return { props: {} };
+  }
 };
 
 export default AuthorDetail;
