@@ -3,6 +3,7 @@ import ChartPoint from "./ChartPoint";
 import React from "react";
 
 const Chart = ({ rows, data, gap, author, is_commit_count }) => {
+  console.log(data);
   return (
     <div className="chart-wrapper">
       <div className="chart">

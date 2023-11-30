@@ -89,6 +89,7 @@ const Authors = () => {
       <Box mt={12}>
         <Box display={"flex"} flexWrap={"wrap"} gap={{ base: 2, lg: 8 }}>
           {authors?.data?.map((item, index) => {
+            console.log(item);
             return (
               <Link
                 key={index}

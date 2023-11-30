@@ -6,18 +6,19 @@ import Link from "next/link";
 import Chart from "@/components/chart/Chart";
 import moment from "moment/moment";
 import axios from "axios";
+import timeToFloat from "@/utils/timeToFloat";
 
 const AuthorDetail = ({ data, author }) => {
   function get_hours() {
     return data?.data?.map((value) => ({
-      value: moment(value.created_at).hours(),
+      value: timeToFloat(value.created_at),
       label1: "Time: " + moment(value.created_at).format("HH:mm"),
       label2: "Commit ID: " + value.id,
     }));
   }
   function get_days() {
     return data?.data?.map((value) => ({
-      value: moment(value.created_at).day(),
+      value: moment(value.created_at).days(),
       raw: value.created_at,
     }));
   }
