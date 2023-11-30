@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Flex, Text } from "@chakra-ui/layout";
 import DropdownMenu from "@/components/dropdown/dropdown";
 import ScatterPlot from "@/components/pointChart/pointChart";
@@ -7,19 +7,47 @@ import Chart from "@/components/chart/Chart";
 import moment from "moment/moment";
 import axios from "axios";
 
+const AuthorName = ({ authors }) => {
+  return (
+    <>
+      {authors.map((author) => (
+        <Text key={author.id} fontSize={36} color={"#2C2F47"} fontWeight={500}>
+          {author.name}
+        </Text>
+      ))}
+    </>
+  );
+};
+
 const AuthorDetail = ({ data, author }) => {
+  const [authors, setAuthors] = useState([]);
+
+  useEffect(() => {
+    // Fazer a chamada à API para obter a lista de autores
+    const fetchAuthors = async () => {
+      try {
+        const response = await axios.get("https://xtvt-0cf34a19b55e.herokuapp.com/authors");
+        setAuthors(response.data.author);
+      } catch (error) {
+        console.error("Erro ao obter a lista de autores:", error);
+      }
+    };
+
+    fetchAuthors();
+  }, []); // O segundo argumento vazio garante que o efeito é executado apenas uma vez durante a montagem do componente
+
   function get_hours() {
     return data?.data?.map((value) => ({
       value: moment(value.created_at).hours(),
       label1: "Time: " + moment(value.created_at).format("HH:mm"),
       label2: "Commit ID: " + value.id,
-    }));
+    })) || [];
   }
   function get_days() {
     return data?.data?.map((value) => ({
       value: moment(value.created_at).day(),
       raw: value.created_at,
-    }));
+    })) || [];
   }
 
   return !data ? (
@@ -37,9 +65,15 @@ const AuthorDetail = ({ data, author }) => {
         </Link>
 
         <Box>
-          <Text fontSize={36} color={"#2C2F47"} fontWeight={500}>
-            Vini Y
-          </Text>
+          {authors && authors.find((a) => a.author === author) ? (
+            <Text fontSize={36} color={"#2C2F47"} fontWeight={500}>
+              {author && author.author ? author.author.split("@")[0] : "Author not found"}
+            </Text>
+          ) : (  
+            <Text fontSize={16} color={"red"}>
+              Author not found
+            </Text>
+          )}
         </Box>
         <Box w={200}>
           <DropdownMenu options={["Last week", "Last Month"]} />
@@ -221,12 +255,28 @@ export const getServerSideProps = async (ctx) => {
       `https://xtvt-0cf34a19b55e.herokuapp.com/authors/${author}/commits`
     );
 
+    console.log("Fetched Data:", fetched_data.data); // Adicione este log
+ 
+    const authorData = fetched_data.data?.data || [];
+
+    // Adapte esta parte conforme a estrutura da sua resposta da API
+    const authorsResponse = await axios.get("https://xtvt-0cf34a19b55e.herokuapp.com/authors");
+    const authors = authorsResponse.data?.data || [];
+
+    // const authorInfo = authors.find((a) => a.author === author);
+    const authorInfo = authorData.length > 0 ? authorData[0].author : null;
+
+    // return {
+    //   props: { data: fetched_data.data, author },
+    // };
+
     return {
-      props: { data: fetched_data.data, author },
+      props: { data: { data: authorData }, author: authorInfo },
     };
+
   } catch (error) {
     console.log(error);
-    return { props: {} };
+    return { props: { data: null, author: null } };
   }
 };
 
