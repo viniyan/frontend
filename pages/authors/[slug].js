@@ -217,7 +217,7 @@ const AuthorDetail = ({ data, author, chart }) => {
 
 export const getServerSideProps = async (ctx) => {
   try {
-    const author = ctx.query.slug.split("-").join("@").split("_").join(".");
+    const author = ctx.query.slug;
 
     const fetched_data = await Promise.all([
       axios.get(
