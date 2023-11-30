@@ -17,7 +17,7 @@ const AuthorDetail = ({ data, author, chart }) => {
     }));
   }
   function get_days() {
-    return chart?.data?.map((value) => ({
+    return chart?.data?.commit_count?.map((value) => ({
       value: moment(value.date).days(),
       label1: "Commit count: " + value.commit_count,
     }));
@@ -227,7 +227,6 @@ export const getServerSideProps = async (ctx) => {
         `https://xtvt-0cf34a19b55e.herokuapp.com/authors/${author}/commit_count`
       ),
     ]);
-
     return {
       props: {
         data: fetched_data[0].data,
