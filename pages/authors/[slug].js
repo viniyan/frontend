@@ -9,6 +9,30 @@ import axios from "axios";
 import timeToFloat from "@/utils/timeToFloat";
 
 const AuthorDetail = ({ data, author, chart }) => {
+  const [authorName, setAuthorName] = useState(""); 
+
+  useEffect(() => {
+    // Fazer a chamada à API para obter a lista de autores
+    const fetchAuthors = async () => {
+      try {
+        const response = await axios.get("https://xtvt-0cf34a19b55e.herokuapp.com/authors");
+        const authorData = response.data.data.find((a) => a.author_id === author);
+
+    if (!authorData) {
+      const emailFormat = author.includes('@') ? author : `${author}`;
+      setAuthorName(emailFormat);
+    } else {    
+        // Definir o nome do autor no estado
+        setAuthorName(authorData?.author || "");
+    }    
+      } catch (error) {
+        console.error("Erro ao obter a lista de autores:", error);
+      }
+    };
+
+    fetchAuthors();
+  }, [author]); // Executar sempre que o autor mudar
+
   function get_hours() {
     return data?.data?.map((value) => ({
       value: timeToFloat(value.created_at),
@@ -47,7 +71,7 @@ const AuthorDetail = ({ data, author, chart }) => {
 
         <Box>
           <Text fontSize={36} color={"#2C2F47"} fontWeight={500}>
-            Vini Y
+            {authorName || "Author not found"}
           </Text>
         </Box>
         <Box w={200}>
