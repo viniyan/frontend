@@ -90,13 +90,7 @@ const Authors = () => {
         <Box display={"flex"} flexWrap={"wrap"} gap={{ base: 2, lg: 8 }}>
           {authors?.data?.map((item, index) => {
             return (
-              <Link
-                key={index}
-                href={
-                  "/authors/" +
-                  item.author.split("@").join("-").split(".").join("_")
-                }
-              >
+              <Link key={index} href={"/authors/" + item.author}>
                 <AuthorCard
                   HeaderBorder={100}
                   headerText={item.author.slice(0, 1)}

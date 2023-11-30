@@ -6,48 +6,29 @@ import Link from "next/link";
 import Chart from "@/components/chart/Chart";
 import moment from "moment/moment";
 import axios from "axios";
+import timeToFloat from "@/utils/timeToFloat";
 
-const AuthorName = ({ authors }) => {
-  return (
-    <>
-      {authors.map((author) => (
-        <Text key={author.id} fontSize={36} color={"#2C2F47"} fontWeight={500}>
-          {author.name}
-        </Text>
-      ))}
-    </>
-  );
-};
-
-const AuthorDetail = ({ data, author }) => {
-  const [authors, setAuthors] = useState([]);
-
-  useEffect(() => {
-    // Fazer a chamada à API para obter a lista de autores
-    const fetchAuthors = async () => {
-      try {
-        const response = await axios.get("https://xtvt-0cf34a19b55e.herokuapp.com/authors");
-        setAuthors(response.data.author);
-      } catch (error) {
-        console.error("Erro ao obter a lista de autores:", error);
-      }
-    };
-
-    fetchAuthors();
-  }, []); // O segundo argumento vazio garante que o efeito é executado apenas uma vez durante a montagem do componente
-
+const AuthorDetail = ({ data, author, chart }) => {
   function get_hours() {
     return data?.data?.map((value) => ({
-      value: moment(value.created_at).hours(),
+      value: timeToFloat(value.created_at),
       label1: "Time: " + moment(value.created_at).format("HH:mm"),
       label2: "Commit ID: " + value.id,
     })) || [];
   }
+
   function get_days() {
-    return data?.data?.map((value) => ({
-      value: moment(value.created_at).day(),
-      raw: value.created_at,
-    })) || [];
+    const value = {};
+    chart?.data?.commit_count?.forEach((x) => {
+      value[moment(x.date).days()] = value[moment(x.date).days()]
+        ? value[moment(x.date).days()] + x.commit_count
+        : x.commit_count;
+    });
+
+    return Object.keys(value).map((keys) => ({
+      value: keys,
+      label1: "Commit count: " + value[keys],
+    }));
   }
 
   return !data ? (
@@ -250,28 +231,22 @@ const AuthorDetail = ({ data, author }) => {
 
 export const getServerSideProps = async (ctx) => {
   try {
-    const author = ctx.query.slug.split("-").join("@").split("_").join(".");
-    const fetched_data = await axios.get(
-      `https://xtvt-0cf34a19b55e.herokuapp.com/authors/${author}/commits`
-    );
+    const author = ctx.query.slug;
 
-    console.log("Fetched Data:", fetched_data.data); // Adicione este log
- 
-    const authorData = fetched_data.data?.data || [];
-
-    // Adapte esta parte conforme a estrutura da sua resposta da API
-    const authorsResponse = await axios.get("https://xtvt-0cf34a19b55e.herokuapp.com/authors");
-    const authors = authorsResponse.data?.data || [];
-
-    // const authorInfo = authors.find((a) => a.author === author);
-    const authorInfo = authorData.length > 0 ? authorData[0].author : null;
-
-    // return {
-    //   props: { data: fetched_data.data, author },
-    // };
-
+    const fetched_data = await Promise.all([
+      axios.get(
+        `https://xtvt-0cf34a19b55e.herokuapp.com/authors/${author}/commits`
+      ),
+      axios.get(
+        `https://xtvt-0cf34a19b55e.herokuapp.com/authors/${author}/commit_count`
+      ),
+    ]);
     return {
-      props: { data: { data: authorData }, author: authorInfo },
+      props: {
+        data: fetched_data[0].data,
+        author,
+        chart: fetched_data[1].data,
+      },
     };
 
   } catch (error) {
