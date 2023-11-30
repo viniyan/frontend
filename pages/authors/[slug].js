@@ -8,7 +8,7 @@ import moment from "moment/moment";
 import axios from "axios";
 import timeToFloat from "@/utils/timeToFloat";
 
-const AuthorDetail = ({ data, author }) => {
+const AuthorDetail = ({ data, author, chart }) => {
   function get_hours() {
     return data?.data?.map((value) => ({
       value: timeToFloat(value.created_at),
@@ -17,9 +17,9 @@ const AuthorDetail = ({ data, author }) => {
     }));
   }
   function get_days() {
-    return data?.data?.map((value) => ({
-      value: moment(value.created_at).days(),
-      raw: value.created_at,
+    return chart?.data?.map((value) => ({
+      value: moment(value.date).days(),
+      label1: "Commit count: " + value.commit_count,
     }));
   }
 
@@ -218,12 +218,22 @@ const AuthorDetail = ({ data, author }) => {
 export const getServerSideProps = async (ctx) => {
   try {
     const author = ctx.query.slug.split("-").join("@").split("_").join(".");
-    const fetched_data = await axios.get(
-      `https://xtvt-0cf34a19b55e.herokuapp.com/authors/${author}/commits`
-    );
+
+    const fetched_data = await Promise.all([
+      axios.get(
+        `https://xtvt-0cf34a19b55e.herokuapp.com/authors/${author}/commits`
+      ),
+      axios.get(
+        `https://xtvt-0cf34a19b55e.herokuapp.com/authors/${author}/commit_count`
+      ),
+    ]);
 
     return {
-      props: { data: fetched_data.data, author },
+      props: {
+        data: fetched_data[0].data,
+        author,
+        chart: [],
+      },
     };
   } catch (error) {
     console.log(error);
