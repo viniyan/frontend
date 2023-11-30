@@ -16,10 +16,18 @@ const AuthorDetail = ({ data, author, chart }) => {
       label2: "Commit ID: " + value.id,
     }));
   }
+
   function get_days() {
-    return chart?.data?.commit_count?.map((value) => ({
-      value: moment(value.date).days(),
-      label1: "Commit count: " + value.commit_count,
+    const value = {};
+    chart?.data?.commit_count?.forEach((x) => {
+      value[moment(x.date).days()] = value[moment(x.date).days()]
+        ? value[moment(x.date).days()] + x.commit_count
+        : x.commit_count;
+    });
+
+    return Object.keys(value).map((keys) => ({
+      value: keys,
+      label1: "Commit count: " + value[keys],
     }));
   }
 
