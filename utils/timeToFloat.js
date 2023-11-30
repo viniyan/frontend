@@ -5,6 +5,4 @@ function timeToFloat(timeStr) {
   return totalMinutes;
 }
 
-console.log(timeToFloat("2:30:00"));
-
 export default timeToFloat;
