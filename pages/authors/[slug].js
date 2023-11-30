@@ -46,15 +46,9 @@ const AuthorDetail = ({ data, author, chart }) => {
         </Link>
 
         <Box>
-          {authors && authors.find((a) => a.author === author) ? (
-            <Text fontSize={36} color={"#2C2F47"} fontWeight={500}>
-              {author && author.author ? author.author.split("@")[0] : "Author not found"}
-            </Text>
-          ) : (  
-            <Text fontSize={16} color={"red"}>
-              Author not found
-            </Text>
-          )}
+          <Text fontSize={36} color={"#2C2F47"} fontWeight={500}>
+            Vini Y
+          </Text>
         </Box>
         <Box w={200}>
           <DropdownMenu options={["Last week", "Last Month"]} />
@@ -248,7 +242,6 @@ export const getServerSideProps = async (ctx) => {
         chart: fetched_data[1].data,
       },
     };
-
   } catch (error) {
     console.log(error);
     return { props: { data: null, author: null } };
