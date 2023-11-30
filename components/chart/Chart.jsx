@@ -7,15 +7,17 @@ const Chart = ({ rows, data, gap, author }) => {
     <div className="chart-wrapper">
       <div className="chart">
         <div className="labels-wrapper">
-          {rows.map((value, i, arr) => (
-            <p
-              className="row-labels"
-              style={{ width: `calc(100% / ${arr.length})` }}
-              key={"a" + i}
-            >
-              {value}
-            </p>
-          ))}
+          {rows.map((value, i, arr) => {
+            return (
+              <p
+                className="row-labels"
+                style={{ width: `calc(100% / ${arr.length})` }}
+                key={"a" + i}
+              >
+                {value}
+              </p>
+            );
+          })}
         </div>
 
         {data?.map((value, i) => {
@@ -30,11 +32,8 @@ const Chart = ({ rows, data, gap, author }) => {
               author={author}
               raw={value.raw}
             />
-          ))
-        ) : (
-          // Adicione uma lógica de fallback ou uma mensagem para quando data for vazio ou indefinido
-          <p>No data available</p>
-        )}
+          );
+        })}
       </div>
     </div>
   );
