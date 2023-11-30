@@ -14,6 +14,7 @@ const ChartPoint = ({
   raw,
 }) => {
   const position = value.value / gap;
+  console.log(value);
   const [ref, hovering] = useHover();
   const [commit_count, setCommit_count] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
