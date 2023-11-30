@@ -20,7 +20,7 @@ const Chart = ({ rows, data, gap, author }) => {
           })}
         </div>
 
-        {data.map((value, i) => {
+        {data?.map((value, i) => {
           return (
             <ChartPoint
               length={rows.length}

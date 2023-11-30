@@ -232,7 +232,7 @@ export const getServerSideProps = async (ctx) => {
       props: {
         data: fetched_data[0].data,
         author,
-        chart: [],
+        chart: fetched_data[1].data,
       },
     };
   } catch (error) {
