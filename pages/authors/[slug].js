@@ -11,8 +11,11 @@ import timeToFloat from "@/utils/timeToFloat";
 const AuthorDetail = ({ data, author, chart }) => {
   const [authorName, setAuthorName] = useState(""); 
   const [openedPRs, setOpenedPRs] = useState(null);
+  const [meanTimeToRepair, setMeanTimeToRepair] = useState("");
 
   useEffect(() => {
+
+
     // Fazer a chamada à API para obter a lista de autores
     const fetchAuthors = async () => {
       try {
@@ -38,7 +41,18 @@ const AuthorDetail = ({ data, author, chart }) => {
       }
     };
 
+    const fetchMeanTimeToRepair = async () => {
+      try {
+        // Fazer a chamada à API para obter o Mean Time To Repair
+        const mtrResponse = await axios.get(`https://xtvt-0cf34a19b55e.herokuapp.com/${author}/mtr`);
+        setMeanTimeToRepair(mtrResponse.data?.mtr_all || "");
+      } catch (error) {
+        console.error("Erro ao obter o Mean Time To Repair:", error);
+      }
+    };
+
     fetchAuthors();
+    fetchMeanTimeToRepair();
   }, [author]); // Executar sempre que o autor mudar
 
   function get_hours() {
@@ -145,7 +159,7 @@ const AuthorDetail = ({ data, author, chart }) => {
                 borderRadius={10}
               >
                 <Text fontSize={18} color={"#141833"} fontWeight={400}>
-                  Shared Branches
+                  Shared Tasks
                 </Text>
                 <Text fontSize={18} color={"#FF6504"} fontWeight={400}>
                   3
@@ -195,7 +209,7 @@ const AuthorDetail = ({ data, author, chart }) => {
                   <Box display={"flex"} alignItems={"center"} gap={5}>
                     <img src="/images/clock.svg" />
                     <Text fontSize={18} color={"#FF6504"}>
-                      1:30:00
+                      {meanTimeToRepair}
                     </Text>
                   </Box>
                 </Flex>
@@ -220,33 +234,6 @@ const AuthorDetail = ({ data, author, chart }) => {
                 is_commit_count
                 gap={1}
               />
-
-              <Box mt={6}>
-                <Flex justify={"space-between"} mb={4}>
-                  <Box>
-                    <Text fontSize={"18px"} color={"#141833"}>
-                      Task in Progress
-                    </Text>
-                  </Box>
-                  <Box>
-                    <Text fontSize={"18px"} color={"#FF6504"}>
-                      45
-                    </Text>
-                  </Box>
-                </Flex>
-                <Flex justify={"space-between"}>
-                  <Box>
-                    <Text fontSize={"18px"} color={"#141833"}>
-                      Task Finished
-                    </Text>
-                  </Box>
-                  <Box>
-                    <Text fontSize={"18px"} color={"#FF6504"}>
-                      10
-                    </Text>
-                  </Box>
-                </Flex>
-              </Box>
             </Box>
           </Box>
         </Box>
