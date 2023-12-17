@@ -10,6 +10,7 @@ import timeToFloat from "@/utils/timeToFloat";
 
 const AuthorDetail = ({ data, author, chart }) => {
   const [authorName, setAuthorName] = useState(""); 
+  const [openedPRs, setOpenedPRs] = useState(null);
 
   useEffect(() => {
     // Fazer a chamada à API para obter a lista de autores
@@ -25,7 +26,14 @@ const AuthorDetail = ({ data, author, chart }) => {
         // Definir o nome do autor no estado
         setAuthorName(authorData?.author || "");
     }    
-      } catch (error) {
+
+    // Nova chamada para obter o número de pull requests
+    const prsResponse = await axios.get("https://xtvt-0cf34a19b55e.herokuapp.com/count_pullrequests");
+    const totalOpenedPRs = Object.values(prsResponse.data).reduce((acc, curr) => acc + curr, 0);
+
+    // Definir o número total de pull requests no estado
+    setOpenedPRs(totalOpenedPRs);
+  } catch (error) {
         console.error("Erro ao obter a lista de autores:", error);
       }
     };
@@ -71,7 +79,7 @@ const AuthorDetail = ({ data, author, chart }) => {
 
         <Box>
           <Text fontSize={36} color={"#2C2F47"} fontWeight={500}>
-            {authorName || "Author not found"}
+            {authorName || "..."}
           </Text>
         </Box>
         <Box w={200}>
@@ -107,7 +115,7 @@ const AuthorDetail = ({ data, author, chart }) => {
                 borderRadius={10}
               >
                 <Text fontSize={18} color={"#141833"} fontWeight={400}>
-                  Opened PRS
+                  Opened PR's
                 </Text>
                 <Text fontSize={18} color={"#FF6504"} fontWeight={400}>
                   1
