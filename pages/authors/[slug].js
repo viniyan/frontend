@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Flex, Text } from "@chakra-ui/layout";
 import DropdownMenu from "@/components/dropdown/dropdown";
 import ScatterPlot from "@/components/pointChart/pointChart";
@@ -9,12 +9,58 @@ import axios from "axios";
 import timeToFloat from "@/utils/timeToFloat";
 
 const AuthorDetail = ({ data, author, chart }) => {
+  const [authorName, setAuthorName] = useState(""); 
+  const [openedPRs, setOpenedPRs] = useState(null);
+  const [meanTimeToRepair, setMeanTimeToRepair] = useState("");
+
+  useEffect(() => {
+
+
+    // Fazer a chamada à API para obter a lista de autores
+    const fetchAuthors = async () => {
+      try {
+        const response = await axios.get("https://xtvt-0cf34a19b55e.herokuapp.com/authors");
+        const authorData = response.data.data.find((a) => a.author_id === author);
+
+    if (!authorData) {
+      const emailFormat = author.includes('@') ? author : `${author}`;
+      setAuthorName(emailFormat);
+    } else {    
+        // Definir o nome do autor no estado
+        setAuthorName(authorData?.author || "");
+    }    
+
+    // Nova chamada para obter o número de pull requests
+    const prsResponse = await axios.get("https://xtvt-0cf34a19b55e.herokuapp.com/count_pullrequests");
+    const totalOpenedPRs = Object.values(prsResponse.data).reduce((acc, curr) => acc + curr, 0);
+
+    // Definir o número total de pull requests no estado
+    setOpenedPRs(totalOpenedPRs);
+  } catch (error) {
+        console.error("Erro ao obter a lista de autores:", error);
+      }
+    };
+
+    const fetchMeanTimeToRepair = async () => {
+      try {
+        // Fazer a chamada à API para obter o Mean Time To Repair
+        const mtrResponse = await axios.get(`https://xtvt-0cf34a19b55e.herokuapp.com/${author}/mtr`);
+        setMeanTimeToRepair(mtrResponse.data?.mtr_all || "");
+      } catch (error) {
+        console.error("Erro ao obter o Mean Time To Repair:", error);
+      }
+    };
+
+    fetchAuthors();
+    fetchMeanTimeToRepair();
+  }, [author]); // Executar sempre que o autor mudar
+
   function get_hours() {
     return data?.data?.map((value) => ({
       value: timeToFloat(value.created_at),
       label1: "Time: " + moment(value.created_at).format("HH:mm"),
       label2: "Commit ID: " + value.id,
-    }));
+    })) || [];
   }
 
   function get_days() {
@@ -47,7 +93,7 @@ const AuthorDetail = ({ data, author, chart }) => {
 
         <Box>
           <Text fontSize={36} color={"#2C2F47"} fontWeight={500}>
-            Vini Y
+            {authorName || "..."}
           </Text>
         </Box>
         <Box w={200}>
@@ -83,7 +129,7 @@ const AuthorDetail = ({ data, author, chart }) => {
                 borderRadius={10}
               >
                 <Text fontSize={18} color={"#141833"} fontWeight={400}>
-                  Opened PRS
+                  Opened PR's
                 </Text>
                 <Text fontSize={18} color={"#FF6504"} fontWeight={400}>
                   1
@@ -113,7 +159,7 @@ const AuthorDetail = ({ data, author, chart }) => {
                 borderRadius={10}
               >
                 <Text fontSize={18} color={"#141833"} fontWeight={400}>
-                  Shared Branches
+                  Shared Tasks
                 </Text>
                 <Text fontSize={18} color={"#FF6504"} fontWeight={400}>
                   3
@@ -163,7 +209,7 @@ const AuthorDetail = ({ data, author, chart }) => {
                   <Box display={"flex"} alignItems={"center"} gap={5}>
                     <img src="/images/clock.svg" />
                     <Text fontSize={18} color={"#FF6504"}>
-                      1:30:00
+                      {meanTimeToRepair}
                     </Text>
                   </Box>
                 </Flex>
@@ -188,33 +234,6 @@ const AuthorDetail = ({ data, author, chart }) => {
                 is_commit_count
                 gap={1}
               />
-
-              <Box mt={6}>
-                <Flex justify={"space-between"} mb={4}>
-                  <Box>
-                    <Text fontSize={"18px"} color={"#141833"}>
-                      Task in Progress
-                    </Text>
-                  </Box>
-                  <Box>
-                    <Text fontSize={"18px"} color={"#FF6504"}>
-                      45
-                    </Text>
-                  </Box>
-                </Flex>
-                <Flex justify={"space-between"}>
-                  <Box>
-                    <Text fontSize={"18px"} color={"#141833"}>
-                      Task Finished
-                    </Text>
-                  </Box>
-                  <Box>
-                    <Text fontSize={"18px"} color={"#FF6504"}>
-                      10
-                    </Text>
-                  </Box>
-                </Flex>
-              </Box>
             </Box>
           </Box>
         </Box>
@@ -244,7 +263,7 @@ export const getServerSideProps = async (ctx) => {
     };
   } catch (error) {
     console.log(error);
-    return { props: {} };
+    return { props: { data: null, author: null } };
   }
 };
 
